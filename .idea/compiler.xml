@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="HelloSpark" />
         <module name="ParseCountries" />
+        <module name="ParseCountriess" />
       </profile>
     </annotationProcessing>
   </component>
