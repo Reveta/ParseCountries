@@ -1,8 +1,14 @@
 package com.epam.spark
 
 import org.apache.spark.rdd.RDD
+import org.apache.spark.{SparkConf, SparkContext}
 
 object Engine {
+
+  val sparkContext: SparkContext = new SparkContext(
+    new SparkConf()
+      .setAppName("simpleReading")
+      .setMaster("local[*]"))
 
   def getRegionIPopultionIpopDensity(rddCsv: RDD[String]): RDD[(String, Long, Double)] = {
     val header: String = rddCsv.first()
@@ -39,12 +45,13 @@ object Engine {
       case (x1, x2, x3) => (
         clearKey(x1),
         x3
-      )}
+      )
+    }
       .reduceByKey(_ + _)
   }
 
 
-  private def clearKey(key: String): String = {
+  def clearKey(key: String): String = {
     //fix problem with input "region" data
     //e.g.: "ASIA (EX. NEAR EAST)         " to "ASIA (EX. NEAR EAST)"
     return key.replace("\"", "").trim()
