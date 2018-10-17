@@ -7,6 +7,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="HelloSpark" />
+        <module name="ParseCounterss" />
         <module name="ParseCountries" />
         <module name="ParseCountriess" />
         <module name="ParseCountriesss" />
