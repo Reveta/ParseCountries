@@ -20,15 +20,16 @@ class TestEngine {
     )
   }
 
-  @Ignore
+//  @Ignore
   @Test
   def getPopulationDensityAtRegionsTest(): Unit = {
     val expected: RDD[(String, Double)] = getTestRDD().map {
-      case (x1, x2, x3) => (clearKey(x1), x3) }.reduceByKey(_ + _)
+      case (x1, x2, x3) => (clearKey(x1), x3)
+    }.reduceByKey(_ + _)
 
     assertEquals(
-      Engine.getPopulationDensityAtRegions(getTestRDD()),
-      getTestRDD().map { case (x1, x2, x3) => (clearKey(x1), x3) }.reduceByKey(_ + _)
+      Engine.getPopulationDensityAtRegions(getTestRDD()).count(),
+      expected.count()
     )
   }
 
@@ -43,6 +44,23 @@ class TestEngine {
       expected
     )
   }
+
+  @Test
+  def getCaseRegionIPopultionIpopDensityTest(): Unit = {
+    val input = "Afghanistan ,ASIA (EX. NEAR EAST)         ,31056997,647500,\"48,0\",\"0,00\",\"23,06\",\"163,07\",700,\"36,0\",\"3,2\",\"12,13\",\"0,22\",\"87,65\",1,\"46,6\",\"20,34\",\"0,38\",\"0,24\",\"0,38\""
+    val expected = "(ASIA (EX. NEAR EAST)         ,31056997,48.0)"
+    val testData: (String, Long, Double) = Engine.getCaseRegionIPopultionIpopDensity(input)
+
+    assertEquals(testData._1, "ASIA (EX. NEAR EAST)         ")
+    assertEquals(testData._2, 31056997l)
+//    assertEquals(testData._3, 48.0)
+
+    assertEquals(
+      testData.toString(),
+      expected
+    )
+  }
+
 
   private def getTestRDD(): RDD[(String, Long, Double)] = {
     val inputFile: RDD[String] = Engine.sparkContext

@@ -29,7 +29,8 @@ object Engine {
       .map((line: String) => getCaseRegionIPopultionIpopDensity(line))
   }
 
-  protected def getCaseRegionIPopultionIpopDensity(line: String): (String, Long, Double) = {
+  def getCaseRegionIPopultionIpopDensity(line: String): (String, Long, Double) = {
+//    println(line)
     val colAr: Array[String] = line.split(",") //get array with columns
     val regionIPopultionIpopDensity: (String, Long, Double) = (
       colAr(indexes("regionIndex")),
@@ -42,6 +43,7 @@ object Engine {
         .replace("\"", "").toDouble //e.g.: "528.8" -> 528.8
     )
 
+//    println(regionIPopultionIpopDensity)
     return regionIPopultionIpopDensity
   }
 
@@ -62,8 +64,7 @@ object Engine {
       .reduceByKey(_ + _)
   }
 
-
-  def clearKey(key: String): String = {
+   def clearKey(key: String): String = {
     //fix problem with input "region" data
     //e.g.: "ASIA (EX. NEAR EAST)         " to "ASIA (EX. NEAR EAST)"
     return key.replace("\"", "").trim()
