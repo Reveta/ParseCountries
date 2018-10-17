@@ -7,7 +7,7 @@ import org.apache.spark.rdd.RDD
 import org.junit.Assert.assertEquals
 import org.junit.{Ignore, Test}
 
-class TestMain {
+class TestEngine {
 
   @Test
   def clearKeyTest(): Unit = {
@@ -23,7 +23,8 @@ class TestMain {
   @Ignore
   @Test
   def getPopulationDensityAtRegionsTest(): Unit = {
-    val expected: RDD[(String, Double)] = getTestRDD().map { case (x1, x2, x3) => (clearKey(x1), x3) }.reduceByKey(_ + _)
+    val expected: RDD[(String, Double)] = getTestRDD().map {
+      case (x1, x2, x3) => (clearKey(x1), x3) }.reduceByKey(_ + _)
 
     assertEquals(
       Engine.getPopulationDensityAtRegions(getTestRDD()),
@@ -33,7 +34,9 @@ class TestMain {
 
   @Test
   def getPopulationSumTest(): Unit = {
-    val expected: Long = getTestRDD().map(_._2).reduce(_ + _)
+    val expected: Long = getTestRDD()
+      .map(_._2)
+      .reduce(_ + _)
 
     assertEquals(
       Engine.getPopulationSum(getTestRDD()),

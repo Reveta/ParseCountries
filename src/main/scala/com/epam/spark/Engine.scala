@@ -3,6 +3,10 @@ package com.epam.spark
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 
+
+/**
+  * object with main logic
+  * inner object sparkContext*/
 object Engine {
 
   val sparkContext: SparkContext = new SparkContext(
@@ -10,27 +14,35 @@ object Engine {
       .setAppName("simpleReading")
       .setMaster("local[*]"))
 
-  def getRegionIPopultionIpopDensity(rddCsv: RDD[String]): RDD[(String, Long, Double)] = {
+  private val indexes: scala.collection.immutable.Map[String, Integer] = Map(
+    "populationIndex" -> 2,
+    "regionIndex" -> 1,
+    "popDensityIntegerIndex" -> 4,
+    "popDensityFractionalIndex" -> 5
+  )
+
+  def getRDDRegionIPopultionIpopDensity(rddCsv: RDD[String]): RDD[(String, Long, Double)] = {
     val header: String = rddCsv.first()
 
-    val populationIndex: Int = 2
-    val regionIndex: Int = 1
-    val popDensityIntegerIndex: Int = 4
-    val popDensityFractionalIndex: Int = 5
+    return rddCsv
+      .filter((_: String) != header) //ignore of first row that contains column names
+      .map((line: String) => getCaseRegionIPopultionIpopDensity(line))
+  }
 
-    rddCsv.filter(_ != header).map(line => { //ignore of first row that contains column names
-      val colAr: Array[String] = line.split(",") //get array with columns
-      (
-        colAr(regionIndex),
+  protected def getCaseRegionIPopultionIpopDensity(line: String): (String, Long, Double) = {
+    val colAr: Array[String] = line.split(",") //get array with columns
+    val regionIPopultionIpopDensity: (String, Long, Double) = (
+      colAr(indexes("regionIndex")),
 
-        colAr(populationIndex) //string to long
-          .toLong,
+      colAr(indexes("populationIndex")) //string to long
+        .toLong,
 
-        colAr(popDensityIntegerIndex)
-          .concat("." + colAr(popDensityFractionalIndex)) //e.g.: "528', '8" -> "528.8"
-          .replace("\"", "").toDouble //e.g.: "528.8" -> 528.8
-      )
-    })
+      colAr(indexes("popDensityIntegerIndex"))
+        .concat("." + colAr(indexes("popDensityFractionalIndex"))) //e.g.: "528', '8" -> "528.8"
+        .replace("\"", "").toDouble //e.g.: "528.8" -> 528.8
+    )
+
+    return regionIPopultionIpopDensity
   }
 
   def getPopulationSum(rdd: RDD[(String, Long, Double)]): Long = {

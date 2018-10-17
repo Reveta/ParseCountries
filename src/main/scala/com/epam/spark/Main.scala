@@ -3,7 +3,8 @@ package com.epam.spark
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 
-
+/**
+  * start point*/
 object Main {
   def main(args: Array[String]): Unit = {
 
@@ -11,7 +12,7 @@ object Main {
       .textFile("src\\main\\scala\\resourses\\countries_of_the_world.csv")
 
     //get region, population and density from csv file
-    val csvFile: RDD[(String, Long, Double)] = Engine.getRegionIPopultionIpopDensity(inputFile)
+    val csvFile: RDD[(String, Long, Double)] = Engine.getRDDRegionIPopultionIpopDensity(inputFile)
 
     //Show to console sum of population
     println("Population total: " + Engine.getPopulationSum(csvFile))

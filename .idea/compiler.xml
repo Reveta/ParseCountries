@@ -9,6 +9,7 @@
         <module name="HelloSpark" />
         <module name="ParseCountries" />
         <module name="ParseCountriess" />
+        <module name="ParseCountriesss" />
       </profile>
     </annotationProcessing>
   </component>
