@@ -1,7 +1,6 @@
 package com.epam.spark
 
 import org.apache.spark.rdd.RDD
-import org.apache.spark.{SparkConf, SparkContext}
 
 
 /**
@@ -9,10 +8,6 @@ import org.apache.spark.{SparkConf, SparkContext}
   * inner object sparkContext*/
 object Engine {
 
-  val sparkContext: SparkContext = new SparkContext(
-    new SparkConf()
-      .setAppName("simpleReading")
-      .setMaster("local[*]"))
 
   private val indexes: scala.collection.immutable.Map[String, Integer] = Map(
     "populationIndex" -> 2,
@@ -30,7 +25,7 @@ object Engine {
   }
 
   def getCaseRegionIPopultionIpopDensity(line: String): (String, Long, Double) = {
-//    println(line)
+    //    println(line)
     val colAr: Array[String] = line.split(",") //get array with columns
     val regionIPopultionIpopDensity: (String, Long, Double) = (
       colAr(indexes("regionIndex")),
@@ -43,7 +38,7 @@ object Engine {
         .replace("\"", "").toDouble //e.g.: "528.8" -> 528.8
     )
 
-//    println(regionIPopultionIpopDensity)
+    //    println(regionIPopultionIpopDensity)
     return regionIPopultionIpopDensity
   }
 
@@ -64,7 +59,7 @@ object Engine {
       .reduceByKey(_ + _)
   }
 
-   def clearKey(key: String): String = {
+  def clearKey(key: String): String = {
     //fix problem with input "region" data
     //e.g.: "ASIA (EX. NEAR EAST)         " to "ASIA (EX. NEAR EAST)"
     return key.replace("\"", "").trim()

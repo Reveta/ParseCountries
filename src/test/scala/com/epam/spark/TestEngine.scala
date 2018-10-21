@@ -3,9 +3,11 @@ package scala.com.epam.spark
 
 import com.epam.spark.Engine
 import com.epam.spark.Engine.clearKey
+import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.SparkSession
 import org.junit.Assert.assertEquals
-import org.junit.{Ignore, Test}
+import org.junit.Test
 
 class TestEngine {
 
@@ -14,13 +16,12 @@ class TestEngine {
     val input = "ASIA (EX. NEAR EAST)         "
     val expected: String = "ASIA (EX. NEAR EAST)"
 
-    assertEquals(
-      Engine.clearKey(input),
-      expected
-    )
+    val actualResult = Engine.clearKey(input)
+
+    assertEquals(actualResult, expected)
   }
 
-//  @Ignore
+  //  @Ignore
   @Test
   def getPopulationDensityAtRegionsTest(): Unit = {
     val expected: RDD[(String, Double)] = getTestRDD().map {
@@ -53,7 +54,7 @@ class TestEngine {
 
     assertEquals(testData._1, "ASIA (EX. NEAR EAST)         ")
     assertEquals(testData._2, 31056997l)
-//    assertEquals(testData._3, 48.0)
+    //    assertEquals(testData._3, 48.0)
 
     assertEquals(
       testData.toString(),
@@ -63,7 +64,13 @@ class TestEngine {
 
 
   private def getTestRDD(): RDD[(String, Long, Double)] = {
-    val inputFile: RDD[String] = Engine.sparkContext
+    val sparkContext: SparkContext = SparkSession
+      .builder()
+      .appName("SparkSessionZipsExample")
+      .master("local")
+      .getOrCreate().sparkContext
+
+    val inputFile: RDD[String] = sparkContext
       .textFile("src\\test\\scala\\resorses\\countries_of_the_world.csv")
 
     val header: String = inputFile.first()
