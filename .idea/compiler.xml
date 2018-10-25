@@ -13,5 +13,8 @@
         <module name="ParseCountriesss" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="ParseCountries" target="1.5" />
+    </bytecodeTargetLevel>
   </component>
 </project>
