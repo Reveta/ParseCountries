@@ -1,70 +1,51 @@
 package com.epam.spark
 
+import java.util.Date
+
+import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
-import org.apache.spark.{SparkConf, SparkContext}
+import org.apache.spark.sql.SparkSession
 
+/**
+  * start point*/
+object Main extends App with Engine {
 
-object Main {
-  def main(args: Array[String]): Unit = {
-    val conf: SparkConf = new SparkConf().setAppName("simpleReading").setMaster("local[*]")
-    val sc: SparkContext = new SparkContext(conf)
+  println(args.mkString("\n"))
 
-    val inputFile: RDD[String] = sc.textFile("src\\main\\scala\\resourses\\countries_of_the_world.csv")
-
-    //get region, population and density from csv file
-    val csvFile: RDD[(String, Long, Double)] = getRegionIPopultionIpopDensity(inputFile)
-
-    //Show to console sum of population
-    println("Population total: " + getPopulationSum(csvFile))
-
-    //Show Population Density at region
-    println("Regional Population Density:")
-    getPopulationDensityAtRegions(csvFile).foreach(x => println("* " + x))
+  //resolve input argument
+  val (master: String, file: String, saveFile: String) = args.toList match {
+    case firstArg :: secondArg :: thirdArg :: Nil => (firstArg, secondArg, thirdArg)
+    case firstArg :: Nil => (firstArg, "src/main/resourses/countries_of_the_world.csv", "./" + new Date().getTime)
+    case Nil => ("local", "src/main/resourses/countries_of_the_world.csv", "./" + new Date().getTime)
   }
 
-  def getRegionIPopultionIpopDensity(rddCsv: RDD[String]): RDD[(String, Long, Double)] = {
-    val header: String = rddCsv.first()
+  private val sparkContext: SparkContext = SparkSession
+    .builder()
+    .appName("SparkSessionZipsExample")
+    .master(master)
+    .getOrCreate().sparkContext
 
-    val populationIndex: Int = 2
-    val regionIndex: Int = 1
-    val popDensityIntegerIndex: Int = 4
-    val popDensityFractionalIndex: Int = 5
+  private val inputRDD: RDD[String] = sparkContext.textFile(file)
 
-    rddCsv.filter(_ != header).map(line => { //ignore of first row that contains column names
-      val colAr: Array[String] = line.split(",") //get array with columns
-      (
-        colAr(regionIndex),
+  private val noHeaderRDD: RDD[String] = inputRDD.filter(!isHeaderCsv(_))
 
-        colAr(populationIndex)//string to long
-          .toLong,
+  //get region, population and density from csv file
+  private val parsedRDD: RDD[(String, Long, Double)] = noHeaderRDD.map(getCaseRegionIPopultionIpopDensity)
 
-        colAr(popDensityIntegerIndex)
-          .concat("." + colAr(popDensityFractionalIndex)) //e.g.: "528', '8" -> "528.8"
-          .replace("\"", "").toDouble //e.g.: "528.8" -> 528.8
-      )
-    })
-  }
+  //Show to console sum of population
+  //println("Population total: " + getPopulationSum(parsedRDD))
 
-  def getPopulationSum(rdd: RDD[(String, Long, Double)]): Long = {
-    //get population(_2) from RDD and summarize them by reduce
-    return rdd.map(_._2).reduce(_ + _)
-  }
+  //Show Population Density at region
+  println("Regional Population Density:")
+  val regionsRDD: RDD[(String, Double)] = parsedRDD.map { case (x1, x2, x3) => (clearKey(x1), x3)
+  }.reduceByKey(_ + _)
 
+  val resultStringRDD: RDD[String] = regionsRDD.map(_.toString)
 
-  def getPopulationDensityAtRegions(rdd: RDD[(String, Long, Double)]): RDD[(String, Double)] = {
-      //get region(x1) and density(x3) and summarize density by key, where key is region
-      return rdd.map {
-        case (x1, x2, x3) => (
-          clearKey(x1),
-          x3)
-      }
-        .reduceByKey(_ + _)
-    }
+  //resultStringRDD.saveAsTextFile(saveFile)
+  resultStringRDD.collect().foreach(println)
 
-    private def clearKey(key: String): String = {
-      //fix problem with input "region" data
-      //e.g.: "ASIA (EX. NEAR EAST)         " to "ASIA (EX. NEAR EAST)"
-      return key.replace("\"", "").trim()
-    }
-
-  }
+  // while (true) {
+  //   Thread.sleep(10000)
+  // }
+}
