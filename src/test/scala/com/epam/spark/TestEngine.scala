@@ -1,5 +1,7 @@
 package scala.com.epam.spark
 
+
+import com.epam.spark.Engine
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

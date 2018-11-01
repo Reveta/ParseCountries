@@ -42,10 +42,10 @@ object Main extends App with Engine {
 
   val resultStringRDD: RDD[String] = regionsRDD.map(_.toString)
 
-  resultStringRDD.saveAsTextFile(saveFile)
-  //resultStringRDD.collect().foreach(println)
+  //resultStringRDD.saveAsTextFile(saveFile)
+  resultStringRDD.collect().foreach(println)
 
-  while (true) {
-    Thread.sleep(10000)
-  }
+  // while (true) {
+  //   Thread.sleep(10000)
+  // }
 }
